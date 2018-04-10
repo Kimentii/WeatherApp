@@ -17,6 +17,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
+import com.google.gson.Gson;
+import com.kimentii.weatherapp.dto.WeatherForecast;
+import com.kimentii.weatherapp.dto.WeatherGuess;
+
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -61,6 +65,10 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         JSONObject jsonObject = OpenWeatherMapRequester.requestWeather(getApplicationContext(),
                                 city, countryCode);
+                        WeatherForecast weatherForecast = new Gson().fromJson(jsonObject.toString(), WeatherForecast.class);
+                        for (WeatherGuess weatherGuess : weatherForecast.getList()) {
+
+                        }
                         Log.d(TAG, jsonObject.toString());
                     }
                 });
@@ -117,22 +125,22 @@ public class MainActivity extends AppCompatActivity {
                 locationManager.requestLocationUpdates(provider, 0, 0.0f, new LocationListener() {
                     @Override
                     public void onLocationChanged(Location location) {
-                        Log.d(TAG, "onLocationChanged");
+                        // Log.d(TAG, "onLocationChanged");
                     }
 
                     @Override
                     public void onStatusChanged(String provider, int status, Bundle extras) {
-                        Log.d(TAG, "onStatusChanged");
+                        //  Log.d(TAG, "onStatusChanged");
                     }
 
                     @Override
                     public void onProviderEnabled(String provider) {
-                        Log.d(TAG, "onProviderEnabled");
+                        //   Log.d(TAG, "onProviderEnabled");
                     }
 
                     @Override
                     public void onProviderDisabled(String provider) {
-                        Log.d(TAG, "onProviderDisabled");
+                        // Log.d(TAG, "onProviderDisabled");
                     }
                 });
             }
