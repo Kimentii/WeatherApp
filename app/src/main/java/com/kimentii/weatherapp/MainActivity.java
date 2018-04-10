@@ -44,59 +44,16 @@ public class MainActivity extends AppCompatActivity {
                                     Manifest.permission.ACCESS_COARSE_LOCATION},
                             PERMISSIONS_REQUEST_LOCATION);
                     return;
-                } else {
-                    Log.d(TAG, "Has location permission.");
-                    LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                    lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0.0f, new LocationListener() {
-                        @Override
-                        public void onLocationChanged(Location location) {
-                            Log.d(TAG, "onLocationChanged");
-                        }
-
-                        @Override
-                        public void onStatusChanged(String provider, int status, Bundle extras) {
-                            Log.d(TAG, "onStatusChanged");
-                        }
-
-                        @Override
-                        public void onProviderEnabled(String provider) {
-                            Log.d(TAG, "onProviderEnabled");
-                        }
-
-                        @Override
-                        public void onProviderDisabled(String provider) {
-                            Log.d(TAG, "onProviderDisabled");
-                        }
-                    });
-                    List<String> providers = lm.getProviders(true);
-                    Log.d(TAG, "Num of providers: " + providers.size());
-                    Location bestLocation = null;
-                    for (String provider : providers) {
-                        Location l = lm.getLastKnownLocation(provider);
-                        if (l == null) {
-                            continue;
-                        }
-                        if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
-                            bestLocation = l;
-                        }
-                    }
-                    double longitude = bestLocation.getLongitude();
-                    double latitude = bestLocation.getLatitude();
-                    Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
-                    List<Address> addresses = null;
-                    try {
-                        addresses = gcd.getFromLocation(latitude, longitude, 1);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    if (addresses.size() > 0) {
-                        Log.d(TAG, "Location: " + addresses.get(0).getLocality());
-                    } else {
-                        // do your stuff
-                    }
-                    Snackbar.make(view, "Done", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
                 }
+                Location location = getLocation();
+                if (location == null) {
+                    Log.d(TAG, "!!! NO LOCATION");
+                    return;
+                }
+                String city = getCity(location);
+                Log.d(TAG, "City: " + city);
+                Snackbar.make(view, "Done", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
         });
     }
@@ -107,36 +64,83 @@ public class MainActivity extends AppCompatActivity {
             case PERMISSIONS_REQUEST_LOCATION: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                            != PackageManager.PERMISSION_GRANTED
-                            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                            != PackageManager.PERMISSION_GRANTED) {
+                    Location location = getLocation();
+                    if (location == null) {
+                        Log.d(TAG, "!!! NO LOCATION");
                         return;
                     }
-                    Log.d(TAG, "Location permission was given.");
-                    LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                    List<String> providers = lm.getProviders(true);
-                    Log.d(TAG, "Num of providers: " + providers.size());
-                    Location bestLocation = null;
-                    for (String provider : providers) {
-                        Location l = lm.getLastKnownLocation(provider);
-                        if (l == null) {
-                            continue;
-                        }
-                        if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
-                            // Found best last known location: %s", l);
-                            bestLocation = l;
-                        }
-                    }
-                    double longitude = bestLocation.getLongitude();
-                    double latitude = bestLocation.getLatitude();
+                    String city = getCity(location);
+                    Log.d(TAG, "City: " + city);
                 } else {
 
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
                 }
                 return;
             }
+        }
+    }
+
+    private Location getLocation() {
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            return null;
+        } else {
+            Log.d(TAG, "Has location permission.");
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            List<String> providers = locationManager.getProviders(true);
+            for (String provider : providers) {
+                locationManager.requestLocationUpdates(provider, 0, 0.0f, new LocationListener() {
+                    @Override
+                    public void onLocationChanged(Location location) {
+                        Log.d(TAG, "onLocationChanged");
+                    }
+
+                    @Override
+                    public void onStatusChanged(String provider, int status, Bundle extras) {
+                        Log.d(TAG, "onStatusChanged");
+                    }
+
+                    @Override
+                    public void onProviderEnabled(String provider) {
+                        Log.d(TAG, "onProviderEnabled");
+                    }
+
+                    @Override
+                    public void onProviderDisabled(String provider) {
+                        Log.d(TAG, "onProviderDisabled");
+                    }
+                });
+            }
+            Log.d(TAG, "Num of providers: " + providers.size());
+            Location bestLocation = null;
+            for (String provider : providers) {
+                Location l = locationManager.getLastKnownLocation(provider);
+                if (l == null) {
+                    continue;
+                }
+                if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+                    bestLocation = l;
+                }
+            }
+            return bestLocation;
+        }
+    }
+
+    private String getCity(Location location) {
+        double longitude = location.getLongitude();
+        double latitude = location.getLatitude();
+        Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
+        List<Address> addresses = null;
+        try {
+            addresses = gcd.getFromLocation(latitude, longitude, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses.size() > 0) {
+            return addresses.get(0).getLocality();
+        } else {
+            return null;
         }
     }
 }
