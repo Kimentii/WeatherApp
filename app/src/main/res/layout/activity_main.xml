@@ -29,8 +29,8 @@
 
                 <ImageView
                     android:id="@+id/imageView"
-                    android:layout_width="90dp"
-                    android:layout_height="90dp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
                     android:layout_centerInParent="true"
                     android:layout_marginBottom="8dp"
                     android:layout_marginEnd="8dp"
@@ -44,14 +44,33 @@
                     app:layout_constraintTop_toTopOf="parent"/>
 
                 <TextView
+                    android:id="@+id/tv_current_weather_country"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.73"
                     app:layout_constraintStart_toEndOf="@+id/imageView"
                     app:layout_constraintTop_toTopOf="@+id/imageView"
                     tools:text="Sunny"/>
+
+                <TextView
+                    android:id="@+id/tv_current_weather_city"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintEnd_toEndOf="@+id/tv_current_weather_country"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_current_weather_country"
+                    tools:text="Moscow"/>
+
+                <TextView
+                    android:id="@+id/tv_current_weather"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintEnd_toEndOf="@+id/tv_current_weather_city"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_current_weather_city"
+                    tools:text="Sunny 19*C"/>
+
             </android.support.constraint.ConstraintLayout>
         </android.support.design.widget.CollapsingToolbarLayout>
 
