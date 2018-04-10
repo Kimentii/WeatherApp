@@ -17,6 +17,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -50,8 +52,19 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "!!! NO LOCATION");
                     return;
                 }
-                String city = getCity(location);
+                final String city = getCity(location);
+                final String countryCode = getCountryCode(location);
                 Log.d(TAG, "City: " + city);
+                Log.d(TAG, "countryCode: " + countryCode);
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject jsonObject = OpenWeatherMapRequester.requestWeather(getApplicationContext(),
+                                city, countryCode);
+                        Log.d(TAG, jsonObject.toString());
+                    }
+                });
+                thread.start();
                 Snackbar.make(view, "Done", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -69,8 +82,19 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "!!! NO LOCATION");
                         return;
                     }
-                    String city = getCity(location);
+                    final String city = getCity(location);
+                    final String countryCode = getCountryCode(location);
                     Log.d(TAG, "City: " + city);
+                    Log.d(TAG, "countryCode: " + countryCode);
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            JSONObject jsonObject = OpenWeatherMapRequester.requestWeather(getApplicationContext(),
+                                    city, countryCode);
+                            Log.d(TAG, jsonObject.toString());
+                        }
+                    });
+                    thread.start();
                 } else {
 
                 }
@@ -139,6 +163,23 @@ public class MainActivity extends AppCompatActivity {
         }
         if (addresses.size() > 0) {
             return addresses.get(0).getLocality();
+        } else {
+            return null;
+        }
+    }
+
+    private String getCountryCode(Location location) {
+        double longitude = location.getLongitude();
+        double latitude = location.getLatitude();
+        Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
+        List<Address> addresses = null;
+        try {
+            addresses = gcd.getFromLocation(latitude, longitude, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses.size() > 0) {
+            return addresses.get(0).getCountryCode();
         } else {
             return null;
         }
