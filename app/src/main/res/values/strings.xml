@@ -3,5 +3,6 @@
     <string name="title_activity_scrolling">ScrollingActivity</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="title_abbreviated_monday">mo</string>
 
 </resources>
