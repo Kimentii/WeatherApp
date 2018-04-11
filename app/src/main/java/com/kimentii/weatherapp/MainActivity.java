@@ -97,10 +97,14 @@ public class MainActivity extends AppCompatActivity {
                                 addDailyWeatherForecastUi(weatherGuess);
                             }
                         }
+                        if (refreshFloatingActionButton != null) {
+                            refreshFloatingActionButton.setClickable(true);
+                        }
                     }
                 });
             }
         });
+        refreshFloatingActionButton.setClickable(false);
         thread.start();
     }
 
@@ -165,6 +169,9 @@ public class MainActivity extends AppCompatActivity {
                         for (WeatherGuess weatherGuess : weatherForecast.getList()) {
                             addDailyWeatherForecastUi(weatherGuess);
                         }
+                        if (refreshFloatingActionButton != null) {
+                            refreshFloatingActionButton.setClickable(true);
+                        }
                         //stopFabRotateAnimation(refreshFloatingActionButton);
                         Snackbar.make(linearLayout, "Done", Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
@@ -173,6 +180,9 @@ public class MainActivity extends AppCompatActivity {
                 // Log.d(TAG, jsonObject.toString());
             }
         });
+        if (refreshFloatingActionButton != null) {
+            refreshFloatingActionButton.setClickable(false);
+        }
         //startFabRotateAnimation(refreshFloatingActionButton);
         thread.start();
     }
@@ -303,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
     private Address getAddress(Location location) {
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
-        Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
+        Geocoder gcd = new Geocoder(getApplicationContext(), Locale.ENGLISH);
         List<Address> addresses = null;
         try {
             addresses = gcd.getFromLocation(latitude, longitude, 1);
