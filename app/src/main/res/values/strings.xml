@@ -4,5 +4,8 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title_abbreviated_monday">mo</string>
-
+    <string name="symbol_degree_celsius">℃</string>
+    <string name="message_offline">offline</string>
+    <string name="key_saved_weather_forecast">weather_forecast</string>
+    <string name="key_saved_location">location</string>
 </resources>
