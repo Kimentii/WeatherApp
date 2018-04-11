@@ -22,6 +22,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -42,7 +44,8 @@ public class MainActivity extends AppCompatActivity {
 
     private final static int PERMISSIONS_REQUEST_LOCATION = 42;
 
-    TextView networkStatusTextView;
+    private TextView networkStatusTextView;
+    private volatile FloatingActionButton refreshFloatingActionButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +53,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         networkStatusTextView = findViewById(R.id.tv_network_status);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        refreshFloatingActionButton = findViewById(R.id.fab);
+
+        refreshFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (isOnline()) {
@@ -134,11 +138,13 @@ public class MainActivity extends AppCompatActivity {
                         for (WeatherGuess weatherGuess : weatherForecast.getList()) {
                             addDailyWeatherForecastUi(weatherGuess);
                         }
+                        stopFabRotateAnimation(refreshFloatingActionButton);
                     }
                 });
                 // Log.d(TAG, jsonObject.toString());
             }
         });
+        startFabRotateAnimation(refreshFloatingActionButton);
         thread.start();
     }
 
@@ -195,37 +201,8 @@ public class MainActivity extends AppCompatActivity {
         } else if (id > 801 && id < 810) {
             return resources.getDrawable(R.drawable.art_clouds);
         }
-
-            /*if (description.equals("clear sky")) {
-                resources.getDrawable(R.drawable.art_clear_sky);
-            } else if (description.equals("few clouds")) {
-                resources.getDrawable(R.drawable.art_few_clouds);
-            } else if (description.equals("scattered clouds")) {
-                resources.getDrawable(R.drawable.art_few_clouds);
-            } else if (description.equals("broken clouds")) {
-                resources.getDrawable(R.drawable.art_clouds);
-            } else if (description.equals("shower rain")) {
-                resources.getDrawable(R.drawable.art_shower_rain);
-            } else if (description.equals("rain")) {
-                resources.getDrawable(R.drawable.art_rain);
-            } else if (description.equals("thunderstorm")) {
-                resources.getDrawable(R.drawable.art_thunderstorm);
-            } else if (description.equals("snow")) {
-                resources.getDrawable(R.drawable.art_snow);
-            } else if (description.equals("mist")) {
-                resources.getDrawable(R.drawable.art_mist);
-            }*/
         return null;
     }
-
-    /*private String getAbbreviatedDayOfWeek(int day) {
-        switch (day) {
-            case Calendar.MONDAY:
-                return "mo";
-            case Calendar.TUESDAY:
-                return ""
-        }
-    }*/
 
     private boolean isOnline() {
         ConnectivityManager cm =
@@ -280,6 +257,18 @@ public class MainActivity extends AppCompatActivity {
             }
             return bestLocation;
         }
+    }
+
+    private void startFabRotateAnimation(FloatingActionButton floatingActionButton) {
+        floatingActionButton.setClickable(false);
+        Animation dataLoadingAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.loading_data);
+        dataLoadingAnimation.setRepeatCount(Animation.INFINITE);
+        floatingActionButton.startAnimation(dataLoadingAnimation);
+    }
+
+    private void stopFabRotateAnimation(FloatingActionButton floatingActionButton) {
+        floatingActionButton.getAnimation().setRepeatCount(0);
+        floatingActionButton.setClickable(true);
     }
 
     private Address getAddress(Location location) {
