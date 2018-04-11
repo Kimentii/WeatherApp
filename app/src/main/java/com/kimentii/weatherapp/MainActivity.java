@@ -3,6 +3,7 @@ package com.kimentii.weatherapp;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
@@ -146,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         final TextView countryTextView = findViewById(R.id.tv_current_weather_country);
         final TextView cityTextView = findViewById(R.id.tv_current_weather_city);
         final TextView currentWeatherTextView = findViewById(R.id.tv_current_weather);
-        iconImageView.setImageDrawable(getIconFromWeatherDescription(weatherGuess.getWeather().getDescription()));
+        iconImageView.setImageDrawable(getIconFromWeatherDescription(weatherGuess.getWeather().getId()));
         countryTextView.setText(getCountryName(location));
         cityTextView.setText(getCity(location));
         currentWeatherTextView.setText(weatherGuess.getWeather().getMain() + " "
@@ -163,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
         TextView timeTextView = dayLayout.findViewById(R.id.tv_time);
         TextView weatherTextView = dayLayout.findViewById(R.id.tv_weather);
         TextView temperatureTextView = dayLayout.findViewById(R.id.tv_temperature);
-        dayWeatherIconImageView.setImageDrawable(getIconFromWeatherDescription(weatherGuess.getWeather().getDescription()));
+        dayWeatherIconImageView.setImageDrawable(getIconFromWeatherDescription(weatherGuess.getWeather().getId()));
         dayOfWeekTextView.setText(weatherGuess.getDateAsCalendar().getDisplayName(Calendar.DAY_OF_WEEK,
                 Calendar.SHORT, Locale.getDefault()));
         timeTextView.setText(weatherGuess.getDateAsCalendar().get(Calendar.HOUR_OF_DAY)
@@ -174,8 +175,47 @@ public class MainActivity extends AppCompatActivity {
         linearLayout.addView(dayLayout);
     }
 
-    private Drawable getIconFromWeatherDescription(String description) {
-        return getResources().getDrawable(R.drawable.art_clear);
+    private Drawable getIconFromWeatherDescription(int id) {
+        Log.d(TAG, "Weather id: " + id);
+        Resources resources = getResources();
+        if (id >= 200 && id < 300) {
+            return resources.getDrawable(R.drawable.art_thunderstorm);
+        } else if (id >= 300 && id < 400) {
+            return resources.getDrawable(R.drawable.art_rain);
+        } else if (id >= 500 && id < 600) {
+            return resources.getDrawable(R.drawable.art_shower_rain);
+        } else if (id >= 600 && id < 700) {
+            return resources.getDrawable(R.drawable.art_snow);
+        } else if (id >= 700 && id < 800) {
+            return resources.getDrawable(R.drawable.art_mist);
+        } else if (id == 800) {
+            return resources.getDrawable(R.drawable.art_clear_sky);
+        } else if (id == 801) {
+            return resources.getDrawable(R.drawable.art_few_clouds);
+        } else if (id > 801 && id < 810) {
+            return resources.getDrawable(R.drawable.art_clouds);
+        }
+
+            /*if (description.equals("clear sky")) {
+                resources.getDrawable(R.drawable.art_clear_sky);
+            } else if (description.equals("few clouds")) {
+                resources.getDrawable(R.drawable.art_few_clouds);
+            } else if (description.equals("scattered clouds")) {
+                resources.getDrawable(R.drawable.art_few_clouds);
+            } else if (description.equals("broken clouds")) {
+                resources.getDrawable(R.drawable.art_clouds);
+            } else if (description.equals("shower rain")) {
+                resources.getDrawable(R.drawable.art_shower_rain);
+            } else if (description.equals("rain")) {
+                resources.getDrawable(R.drawable.art_rain);
+            } else if (description.equals("thunderstorm")) {
+                resources.getDrawable(R.drawable.art_thunderstorm);
+            } else if (description.equals("snow")) {
+                resources.getDrawable(R.drawable.art_snow);
+            } else if (description.equals("mist")) {
+                resources.getDrawable(R.drawable.art_mist);
+            }*/
+        return null;
     }
 
     /*private String getAbbreviatedDayOfWeek(int day) {
@@ -252,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (addresses.size() > 0) {
+        if (addresses != null && addresses.size() > 0) {
             return addresses.get(0);
         } else {
             return null;
@@ -260,14 +300,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String getCity(Location location) {
-        return getAddress(location).getLocality();
+        Address address = getAddress(location);
+        return address != null ? address.getLocality() : null;
     }
 
     private String getCountryCode(Location location) {
-        return getAddress(location).getCountryCode();
+        Address address = getAddress(location);
+        return address != null ? address.getCountryCode() : null;
     }
 
     private String getCountryName(Location location) {
-        return getAddress(location).getCountryName();
+        Address address = getAddress(location);
+        return address != null ? address.getCountryName() : null;
     }
 }
