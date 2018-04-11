@@ -9,6 +9,8 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -39,29 +41,38 @@ public class MainActivity extends AppCompatActivity {
 
     private final static int PERMISSIONS_REQUEST_LOCATION = 42;
 
+    TextView networkStatusTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        networkStatusTextView = findViewById(R.id.tv_network_status);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(MainActivity.this,
-                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                                    Manifest.permission.ACCESS_COARSE_LOCATION},
-                            PERMISSIONS_REQUEST_LOCATION);
-                    return;
+                if (isOnline()) {
+                    networkStatusTextView.setVisibility(View.INVISIBLE);
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED
+                            && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(MainActivity.this,
+                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION},
+                                PERMISSIONS_REQUEST_LOCATION);
+                        return;
+                    }
+                    Handler handler = new Handler();
+                    refreshWeatherForecast(handler);
+                    Snackbar.make(view, "Done", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                } else {
+                    networkStatusTextView.setVisibility(View.VISIBLE);
+                    Log.d(TAG, "Status: offline");
                 }
-                Handler handler = new Handler();
-                refreshWeatherForecast(handler);
-                Snackbar.make(view, "Done", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
             }
         });
     }
@@ -175,6 +186,13 @@ public class MainActivity extends AppCompatActivity {
                 return ""
         }
     }*/
+
+    private boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
 
     private Location getLocation() {
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
