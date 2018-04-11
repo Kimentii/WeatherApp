@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private final static int PERMISSIONS_REQUEST_LOCATION = 42;
 
     private TextView networkStatusTextView;
-    private volatile FloatingActionButton refreshFloatingActionButton;
+    private FloatingActionButton refreshFloatingActionButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         networkStatusTextView = findViewById(R.id.tv_network_status);
 
         refreshFloatingActionButton = findViewById(R.id.fab);
-
+        final Handler handler = new Handler();
         refreshFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -70,25 +70,50 @@ public class MainActivity extends AppCompatActivity {
                                 PERMISSIONS_REQUEST_LOCATION);
                         return;
                     }
-                    Handler handler = new Handler();
                     refreshWeatherForecast(handler);
-                    Snackbar.make(view, "Done", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
                 } else {
                     networkStatusTextView.setVisibility(View.VISIBLE);
                     Log.d(TAG, "Status: offline");
                 }
             }
         });
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final WeatherForecast weatherForecast = SharedPreferencesProvider
+                        .getWeatherForecast(MainActivity.this);
+                final Location location = SharedPreferencesProvider
+                        .getLocation(MainActivity.this);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (location != null && weatherForecast != null) {
+                            updateCurrentWeatherUi(location, weatherForecast.getList().get(0));
+                        }
+                        if (weatherForecast != null) {
+                            LinearLayout linearLayout = findViewById(R.id.ll_week_forecast);
+                            linearLayout.removeAllViews();
+                            for (WeatherGuess weatherGuess : weatherForecast.getList()) {
+                                addDailyWeatherForecastUi(weatherGuess);
+                            }
+                        }
+                    }
+                });
+            }
+        });
+        thread.start();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(TAG, "onRequestPermissionsResult");
+        Log.d(TAG, "Num of grandResults: " + grantResults.length);
         switch (requestCode) {
             case PERMISSIONS_REQUEST_LOCATION: {
                 if (grantResults.length == 2
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "onRequestPermissionsResult: refreshing data");
                     Handler handler = new Handler();
                     refreshWeatherForecast(handler);
                 } else {
@@ -105,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "!!! NO LOCATION");
             return;
         }
+        SharedPreferencesProvider.putLocation(this, location);
         final String city = getCity(location);
         final String countryCode = getCountryCode(location);
         Log.d(TAG, "City: " + city);
@@ -115,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject jsonObject = OpenWeatherMapRequester.requestWeather(getApplicationContext(),
                         city, countryCode);
                 final WeatherForecast weatherForecast = new Gson().fromJson(jsonObject.toString(), WeatherForecast.class);
+                SharedPreferencesProvider.putWeatherForecast(MainActivity.this, weatherForecast);
                 /*for (WeatherGuess weatherGuess : weatherForecast.getList()) {
                     Log.d(TAG, "WeatherGuess: " + "date: " + weatherGuess.getDateInSeconds()
                             + " Temp: " + weatherGuess.getMain().getTempInCelsius());
@@ -138,13 +165,15 @@ public class MainActivity extends AppCompatActivity {
                         for (WeatherGuess weatherGuess : weatherForecast.getList()) {
                             addDailyWeatherForecastUi(weatherGuess);
                         }
-                        stopFabRotateAnimation(refreshFloatingActionButton);
+                        //stopFabRotateAnimation(refreshFloatingActionButton);
+                        Snackbar.make(linearLayout, "Done", Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
                     }
                 });
                 // Log.d(TAG, jsonObject.toString());
             }
         });
-        startFabRotateAnimation(refreshFloatingActionButton);
+        //startFabRotateAnimation(refreshFloatingActionButton);
         thread.start();
     }
 
