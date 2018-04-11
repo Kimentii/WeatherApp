@@ -44,13 +44,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LayoutInflater layoutInflater = getLayoutInflater();
-        for (int i = 0; i < 5; i++) {
-            View view = layoutInflater.inflate(R.layout.day_info, null, false);
-            LinearLayout linearLayout = findViewById(R.id.ll_week_forecast);
-            linearLayout.addView(view);
-        }
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,23 +99,29 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject jsonObject = OpenWeatherMapRequester.requestWeather(getApplicationContext(),
                         city, countryCode);
                 final WeatherForecast weatherForecast = new Gson().fromJson(jsonObject.toString(), WeatherForecast.class);
-                for (WeatherGuess weatherGuess : weatherForecast.getList()) {
-                            /*Log.d(TAG, "WeatherGuess: " + "date: " + weatherGuess.getDateInSeconds()
-                                    + " Temp: " + weatherGuess.getMain().getTempInCelsius());*/
+                /*for (WeatherGuess weatherGuess : weatherForecast.getList()) {
+                    Log.d(TAG, "WeatherGuess: " + "date: " + weatherGuess.getDateInSeconds()
+                            + " Temp: " + weatherGuess.getMain().getTempInCelsius());
                     Log.d(TAG, "Weather date: " + weatherGuess.getDateAsCalendar().get(Calendar.DAY_OF_WEEK)
                             + " time: " + weatherGuess.getDateAsCalendar().get(Calendar.HOUR_OF_DAY)
                             + ":" + weatherGuess.getDateAsCalendar().get(Calendar.MINUTE)
                             + " forecast: " + weatherGuess.getWeather().getMain());
-                            /*for (Weather weather : weatherGuess.getWeather()) {
-                                Log.d(TAG, "Weather: main: " + weather.getMain()
-                                        + " descr: " + weather.getDescription() + " icon: " + weather.getIcon());
-                            }*/
 
-                }
+                }*/
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
                         updateCurrentWeatherUi(location, weatherForecast.getList().get(0));
+                    }
+                });
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        LinearLayout linearLayout = findViewById(R.id.ll_week_forecast);
+                        linearLayout.removeAllViews();
+                        for (WeatherGuess weatherGuess : weatherForecast.getList()) {
+                            addDailyWeatherForecastUi(weatherGuess);
+                        }
                     }
                 });
                 // Log.d(TAG, jsonObject.toString());
@@ -139,13 +138,43 @@ public class MainActivity extends AppCompatActivity {
         iconImageView.setImageDrawable(getIconFromWeatherDescription(weatherGuess.getWeather().getDescription()));
         countryTextView.setText(getCountryName(location));
         cityTextView.setText(getCity(location));
-        currentWeatherTextView.setText(weatherGuess.getWeather().getMain() + " " + weatherGuess.getMain().getTempInCelsius()
+        currentWeatherTextView.setText(weatherGuess.getWeather().getMain() + " "
+                + (int) weatherGuess.getMain().getTempInCelsius()
                 + getResources().getString(R.string.symbol_degree_celsius));
+    }
+
+    private void addDailyWeatherForecastUi(WeatherGuess weatherGuess) {
+        LayoutInflater layoutInflater = getLayoutInflater();
+        View dayLayout = layoutInflater.inflate(R.layout.day_info, null, false);
+        LinearLayout linearLayout = findViewById(R.id.ll_week_forecast);
+        ImageView dayWeatherIconImageView = dayLayout.findViewById(R.id.iv_day_weather_icon);
+        TextView dayOfWeekTextView = dayLayout.findViewById(R.id.tv_day_of_week);
+        TextView timeTextView = dayLayout.findViewById(R.id.tv_time);
+        TextView weatherTextView = dayLayout.findViewById(R.id.tv_weather);
+        TextView temperatureTextView = dayLayout.findViewById(R.id.tv_temperature);
+        dayWeatherIconImageView.setImageDrawable(getIconFromWeatherDescription(weatherGuess.getWeather().getDescription()));
+        dayOfWeekTextView.setText(weatherGuess.getDateAsCalendar().getDisplayName(Calendar.DAY_OF_WEEK,
+                Calendar.SHORT, Locale.getDefault()));
+        timeTextView.setText(weatherGuess.getDateAsCalendar().get(Calendar.HOUR_OF_DAY)
+                + ":" + weatherGuess.getDateAsCalendar().get(Calendar.MINUTE));
+        weatherTextView.setText(weatherGuess.getWeather().getMain());
+        temperatureTextView.setText((int) weatherGuess.getMain().getTempInCelsius() +
+                getResources().getString(R.string.symbol_degree_celsius));
+        linearLayout.addView(dayLayout);
     }
 
     private Drawable getIconFromWeatherDescription(String description) {
         return getResources().getDrawable(R.drawable.art_clear);
     }
+
+    /*private String getAbbreviatedDayOfWeek(int day) {
+        switch (day) {
+            case Calendar.MONDAY:
+                return "mo";
+            case Calendar.TUESDAY:
+                return ""
+        }
+    }*/
 
     private Location getLocation() {
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)

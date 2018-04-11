@@ -7,51 +7,51 @@
     android:layout_height="100dp">
 
     <TextView
-        android:id="@+id/textView"
-        app:layout_constraintEnd_toStartOf="@+id/iv_monday"
-        app:layout_constraintTop_toTopOf="@+id/iv_monday"
+        android:id="@+id/tv_day_of_week"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:text="@string/title_abbreviated_monday"/>
+        android:text="@string/title_abbreviated_monday"
+        app:layout_constraintEnd_toStartOf="@+id/iv_day_weather_icon"
+        app:layout_constraintTop_toTopOf="@+id/iv_day_weather_icon"/>
 
     <ImageView
-        android:id="@+id/iv_monday"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.15"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/iv_day_weather_icon"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:src="@drawable/art_clear"/>
+        android:src="@drawable/art_clear"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
-        android:id="@+id/textView3"
-        app:layout_constraintStart_toEndOf="@+id/iv_monday"
-        app:layout_constraintTop_toTopOf="@+id/iv_monday"
-        tools:text="Sunny"
+        android:id="@+id/tv_weather"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"/>
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@+id/iv_day_weather_icon"
+        app:layout_constraintTop_toTopOf="@+id/iv_day_weather_icon"
+        tools:text="Sunny"/>
 
     <TextView
-        android:id="@+id/tv_monday_time"
-        app:layout_constraintEnd_toEndOf="@+id/textView"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        tools:text="15:30"
+        android:id="@+id/tv_time"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@+id/tv_day_of_week"
+        app:layout_constraintTop_toBottomOf="@+id/tv_day_of_week"
+        tools:text="15:30"/>
 
     <TextView
-        android:id="@+id/tv_monday_temperature"
-        app:layout_constraintStart_toStartOf="@+id/textView3"
-        app:layout_constraintTop_toBottomOf="@+id/textView3"
-        tools:text="15*C"
+        android:id="@+id/tv_temperature"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@+id/tv_weather"
+        app:layout_constraintTop_toBottomOf="@+id/tv_weather"
+        tools:text="15*C"/>
 </android.support.constraint.ConstraintLayout>
