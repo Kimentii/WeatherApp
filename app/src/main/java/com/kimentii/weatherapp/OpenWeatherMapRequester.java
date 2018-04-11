@@ -47,9 +47,10 @@ public class OpenWeatherMapRequester {
                     Log.d(TAG, "!!! cod is NULL !!!");
                     return null;
                 }
-
+                connection.disconnect();
                 return data;
             } catch (FileNotFoundException e) {
+                Log.d(TAG, "RequestWeather attempt: " + i);
                 e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
