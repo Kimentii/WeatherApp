@@ -15,7 +15,9 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.google.gson.Gson;
 import com.kimentii.weatherapp.dto.WeatherForecast;
@@ -24,6 +26,7 @@ import com.kimentii.weatherapp.dto.WeatherGuess;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -36,6 +39,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        LayoutInflater layoutInflater = getLayoutInflater();
+        for (int i = 0; i < 5; i++) {
+            View view = layoutInflater.inflate(R.layout.day_info, null, false);
+            LinearLayout linearLayout = findViewById(R.id.ll_week_forecast);
+            linearLayout.addView(view);
+        }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -67,6 +77,16 @@ public class MainActivity extends AppCompatActivity {
                                 city, countryCode);
                         WeatherForecast weatherForecast = new Gson().fromJson(jsonObject.toString(), WeatherForecast.class);
                         for (WeatherGuess weatherGuess : weatherForecast.getList()) {
+                            /*Log.d(TAG, "WeatherGuess: " + "date: " + weatherGuess.getDateInSeconds()
+                                    + " Temp: " + weatherGuess.getMain().getTempInCelsius());*/
+                            Log.d(TAG, "Weather date: " + weatherGuess.getDateAsCalendar().get(Calendar.DAY_OF_WEEK)
+                                    + " time: " + weatherGuess.getDateAsCalendar().get(Calendar.HOUR_OF_DAY)
+                                    + ":" + weatherGuess.getDateAsCalendar().get(Calendar.MINUTE)
+                                    + " forecast: " + weatherGuess.getWeather().get(0).getMain());
+                            /*for (Weather weather : weatherGuess.getWeather()) {
+                                Log.d(TAG, "Weather: main: " + weather.getMain()
+                                        + " descr: " + weather.getDescription() + " icon: " + weather.getIcon());
+                            }*/
 
                         }
                         Log.d(TAG, jsonObject.toString());
