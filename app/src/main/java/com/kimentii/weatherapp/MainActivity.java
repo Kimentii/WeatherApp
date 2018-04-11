@@ -195,9 +195,13 @@ public class MainActivity extends AppCompatActivity {
         iconImageView.setImageDrawable(getIconFromWeatherDescription(weatherGuess.getWeather().getId()));
         countryTextView.setText(getCountryName(location));
         cityTextView.setText(getCity(location));
-        currentWeatherTextView.setText(weatherGuess.getWeather().getMain() + " "
-                + (int) weatherGuess.getMain().getTempInCelsius()
-                + getResources().getString(R.string.symbol_degree_celsius));
+        try {
+            currentWeatherTextView.setText(weatherGuess.getWeather().getMain() + " "
+                    + (int) weatherGuess.getMain().getTempInCelsius()
+                    + getResources().getString(R.string.symbol_degree_celsius));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void addDailyWeatherForecastUi(WeatherGuess weatherGuess) {
@@ -215,8 +219,12 @@ public class MainActivity extends AppCompatActivity {
         timeTextView.setText(weatherGuess.getDateAsCalendar().get(Calendar.HOUR_OF_DAY)
                 + ":" + weatherGuess.getDateAsCalendar().get(Calendar.MINUTE));
         weatherTextView.setText(weatherGuess.getWeather().getMain());
-        temperatureTextView.setText((int) weatherGuess.getMain().getTempInCelsius() +
-                getResources().getString(R.string.symbol_degree_celsius));
+        try {
+            temperatureTextView.setText((int) weatherGuess.getMain().getTempInCelsius() +
+                    getResources().getString(R.string.symbol_degree_celsius));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         linearLayout.addView(dayLayout);
     }
 
