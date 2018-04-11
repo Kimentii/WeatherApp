@@ -3,12 +3,14 @@ package com.kimentii.weatherapp;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -17,7 +19,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.kimentii.weatherapp.dto.WeatherForecast;
@@ -61,38 +65,8 @@ public class MainActivity extends AppCompatActivity {
                             PERMISSIONS_REQUEST_LOCATION);
                     return;
                 }
-                Location location = getLocation();
-                if (location == null) {
-                    Log.d(TAG, "!!! NO LOCATION");
-                    return;
-                }
-                final String city = getCity(location);
-                final String countryCode = getCountryCode(location);
-                Log.d(TAG, "City: " + city);
-                Log.d(TAG, "countryCode: " + countryCode);
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        JSONObject jsonObject = OpenWeatherMapRequester.requestWeather(getApplicationContext(),
-                                city, countryCode);
-                        WeatherForecast weatherForecast = new Gson().fromJson(jsonObject.toString(), WeatherForecast.class);
-                        for (WeatherGuess weatherGuess : weatherForecast.getList()) {
-                            /*Log.d(TAG, "WeatherGuess: " + "date: " + weatherGuess.getDateInSeconds()
-                                    + " Temp: " + weatherGuess.getMain().getTempInCelsius());*/
-                            Log.d(TAG, "Weather date: " + weatherGuess.getDateAsCalendar().get(Calendar.DAY_OF_WEEK)
-                                    + " time: " + weatherGuess.getDateAsCalendar().get(Calendar.HOUR_OF_DAY)
-                                    + ":" + weatherGuess.getDateAsCalendar().get(Calendar.MINUTE)
-                                    + " forecast: " + weatherGuess.getWeather().get(0).getMain());
-                            /*for (Weather weather : weatherGuess.getWeather()) {
-                                Log.d(TAG, "Weather: main: " + weather.getMain()
-                                        + " descr: " + weather.getDescription() + " icon: " + weather.getIcon());
-                            }*/
-
-                        }
-                        Log.d(TAG, jsonObject.toString());
-                    }
-                });
-                thread.start();
+                Handler handler = new Handler();
+                refreshWeatherForecast(handler);
                 Snackbar.make(view, "Done", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -103,32 +77,74 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_REQUEST_LOCATION: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Location location = getLocation();
-                    if (location == null) {
-                        Log.d(TAG, "!!! NO LOCATION");
-                        return;
-                    }
-                    final String city = getCity(location);
-                    final String countryCode = getCountryCode(location);
-                    Log.d(TAG, "City: " + city);
-                    Log.d(TAG, "countryCode: " + countryCode);
-                    Thread thread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            JSONObject jsonObject = OpenWeatherMapRequester.requestWeather(getApplicationContext(),
-                                    city, countryCode);
-                            Log.d(TAG, jsonObject.toString());
-                        }
-                    });
-                    thread.start();
+                if (grantResults.length == 2
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    Handler handler = new Handler();
+                    refreshWeatherForecast(handler);
                 } else {
 
                 }
                 return;
             }
         }
+    }
+
+    private void refreshWeatherForecast(final Handler handler) {
+        final Location location = getLocation();
+        if (location == null) {
+            Log.d(TAG, "!!! NO LOCATION");
+            return;
+        }
+        final String city = getCity(location);
+        final String countryCode = getCountryCode(location);
+        Log.d(TAG, "City: " + city);
+        Log.d(TAG, "countryCode: " + countryCode);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject jsonObject = OpenWeatherMapRequester.requestWeather(getApplicationContext(),
+                        city, countryCode);
+                final WeatherForecast weatherForecast = new Gson().fromJson(jsonObject.toString(), WeatherForecast.class);
+                for (WeatherGuess weatherGuess : weatherForecast.getList()) {
+                            /*Log.d(TAG, "WeatherGuess: " + "date: " + weatherGuess.getDateInSeconds()
+                                    + " Temp: " + weatherGuess.getMain().getTempInCelsius());*/
+                    Log.d(TAG, "Weather date: " + weatherGuess.getDateAsCalendar().get(Calendar.DAY_OF_WEEK)
+                            + " time: " + weatherGuess.getDateAsCalendar().get(Calendar.HOUR_OF_DAY)
+                            + ":" + weatherGuess.getDateAsCalendar().get(Calendar.MINUTE)
+                            + " forecast: " + weatherGuess.getWeather().getMain());
+                            /*for (Weather weather : weatherGuess.getWeather()) {
+                                Log.d(TAG, "Weather: main: " + weather.getMain()
+                                        + " descr: " + weather.getDescription() + " icon: " + weather.getIcon());
+                            }*/
+
+                }
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateCurrentWeatherUi(location, weatherForecast.getList().get(0));
+                    }
+                });
+                // Log.d(TAG, jsonObject.toString());
+            }
+        });
+        thread.start();
+    }
+
+    private void updateCurrentWeatherUi(Location location, WeatherGuess weatherGuess) {
+        final ImageView iconImageView = findViewById(R.id.iv_current_weather_icon);
+        final TextView countryTextView = findViewById(R.id.tv_current_weather_country);
+        final TextView cityTextView = findViewById(R.id.tv_current_weather_city);
+        final TextView currentWeatherTextView = findViewById(R.id.tv_current_weather);
+        iconImageView.setImageDrawable(getIconFromWeatherDescription(weatherGuess.getWeather().getDescription()));
+        countryTextView.setText(getCountryName(location));
+        cityTextView.setText(getCity(location));
+        currentWeatherTextView.setText(weatherGuess.getWeather().getMain() + " " + weatherGuess.getMain().getTempInCelsius()
+                + getResources().getString(R.string.symbol_degree_celsius));
+    }
+
+    private Drawable getIconFromWeatherDescription(String description) {
+        return getResources().getDrawable(R.drawable.art_clear);
     }
 
     private Location getLocation() {
@@ -179,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private String getCity(Location location) {
+    private Address getAddress(Location location) {
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
         Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
@@ -190,26 +206,21 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         if (addresses.size() > 0) {
-            return addresses.get(0).getLocality();
+            return addresses.get(0);
         } else {
             return null;
         }
     }
 
+    private String getCity(Location location) {
+        return getAddress(location).getLocality();
+    }
+
     private String getCountryCode(Location location) {
-        double longitude = location.getLongitude();
-        double latitude = location.getLatitude();
-        Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
-        List<Address> addresses = null;
-        try {
-            addresses = gcd.getFromLocation(latitude, longitude, 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (addresses.size() > 0) {
-            return addresses.get(0).getCountryCode();
-        } else {
-            return null;
-        }
+        return getAddress(location).getCountryCode();
+    }
+
+    private String getCountryName(Location location) {
+        return getAddress(location).getCountryName();
     }
 }

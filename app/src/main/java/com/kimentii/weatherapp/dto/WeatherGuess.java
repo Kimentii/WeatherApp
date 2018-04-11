@@ -2,7 +2,6 @@ package com.kimentii.weatherapp.dto;
 
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 public class WeatherGuess {
@@ -12,8 +11,8 @@ public class WeatherGuess {
     private Main main;
     private int dt;
 
-    public List<Weather> getWeather() {
-        return weather;
+    public Weather getWeather() {
+        return weather.get(0);
     }
 
     public Main getMain() {
