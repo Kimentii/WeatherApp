@@ -107,7 +107,6 @@ public class MainActivity extends AppCompatActivity {
                 if (grantResults.length == 2
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    // TODO: this code doesn't work
                     if (BuildConfig.DEBUG)
                         Log.d(TAG, "onRequestPermissionsResult: refreshing data");
                     Handler handler = new Handler();
@@ -203,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
         dayOfWeekTextView.setText(weatherGuess.getDateAsCalendar().getDisplayName(Calendar.DAY_OF_WEEK,
                 Calendar.SHORT, Locale.getDefault()));
         SimpleDateFormat simpleDateFormat;
-        if (Locale.getDefault() == Locale.ENGLISH) {
+        if (Locale.getDefault().equals(Locale.ENGLISH)) {
             simpleDateFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
         } else {
             simpleDateFormat = new SimpleDateFormat("h:mm", Locale.getDefault());
