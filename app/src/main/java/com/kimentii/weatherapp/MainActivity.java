@@ -34,6 +34,7 @@ import com.kimentii.weatherapp.dto.WeatherGuess;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
                 if (grantResults.length == 2
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    // TODO: this code doesn't work
                     Log.d(TAG, "onRequestPermissionsResult: refreshing data");
                     Handler handler = new Handler();
                     refreshWeatherForecast(handler);
@@ -121,8 +123,8 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         SharedPreferencesProvider.putLocation(MainActivity.this, location);
-        final String city = getCity(location);
-        final String countryCode = getCountryCode(location);
+        final String city = getCity(location, Locale.ENGLISH);
+        final String countryCode = getCountryCode(location, Locale.ENGLISH);
         Log.d(TAG, "City: " + city);
         Log.d(TAG, "countryCode: " + countryCode);
         Thread thread = new Thread(new Runnable() {
@@ -177,8 +179,8 @@ public class MainActivity extends AppCompatActivity {
         final TextView cityTextView = findViewById(R.id.tv_current_weather_city);
         final TextView currentWeatherTextView = findViewById(R.id.tv_current_weather);
         iconImageView.setImageDrawable(getIconFromWeatherDescription(weatherGuess.getWeather().getId()));
-        countryTextView.setText(getCountryName(location));
-        cityTextView.setText(getCity(location));
+        countryTextView.setText(getCountryName(location, Locale.getDefault()));
+        cityTextView.setText(getCity(location, Locale.getDefault()));
         try {
             currentWeatherTextView.setText(String.format(getString(R.string.title_current_weather),
                     weatherGuess.getWeather().getMain(),
@@ -201,9 +203,11 @@ public class MainActivity extends AppCompatActivity {
         dayWeatherIconImageView.setImageDrawable(getIconFromWeatherDescription(weatherGuess.getWeather().getId()));
         dayOfWeekTextView.setText(weatherGuess.getDateAsCalendar().getDisplayName(Calendar.DAY_OF_WEEK,
                 Calendar.SHORT, Locale.getDefault()));
-        timeTextView.setText(String.format(getString(R.string.title_time),
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+        timeTextView.setText(simpleDateFormat.format(weatherGuess.getDateAsCalendar()));
+        /*timeTextView.setText(String.format(getString(R.string.title_time),
                 weatherGuess.getDateAsCalendar().get(Calendar.HOUR_OF_DAY),
-                weatherGuess.getDateAsCalendar().get(Calendar.MINUTE)));
+                weatherGuess.getDateAsCalendar().get(Calendar.MINUTE)));*/
         weatherTextView.setText(weatherGuess.getWeather().getMain());
         try {
             temperatureTextView.setText(String.format(getString(R.string.title_temperature),
@@ -306,10 +310,10 @@ public class MainActivity extends AppCompatActivity {
         floatingActionButton.setClickable(true);
     }
 
-    private Address getAddress(Location location) {
+    private Address getAddress(Location location, Locale locale) {
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
-        Geocoder gcd = new Geocoder(getApplicationContext(), Locale.ENGLISH);
+        Geocoder gcd = new Geocoder(getApplicationContext(), locale);
         List<Address> addresses = null;
         try {
             addresses = gcd.getFromLocation(latitude, longitude, 1);
@@ -323,18 +327,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private String getCity(Location location) {
-        Address address = getAddress(location);
+    private String getCity(Location location, Locale locale) {
+        Address address = getAddress(location, locale);
         return address != null ? address.getLocality() : null;
     }
 
-    private String getCountryCode(Location location) {
-        Address address = getAddress(location);
+    private String getCountryCode(Location location, Locale locale) {
+        Address address = getAddress(location, locale);
         return address != null ? address.getCountryCode() : null;
     }
 
-    private String getCountryName(Location location) {
-        Address address = getAddress(location);
+    private String getCountryName(Location location, Locale locale) {
+        Address address = getAddress(location, locale);
         return address != null ? address.getCountryName() : null;
     }
 }

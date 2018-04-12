@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">WeatherApp</string>
+    <string name="symbol_degree_celsius">℃</string>
+    <string name="message_offline">офлайн</string>
+    <string name="message_no_loaded_data">Нет данных</string>
+    <string name="message_cant_load_data">Не получилось загрузить данные</string>
+    <string name="title_current_weather">%s %d%s</string>
+    <string name="title_time">%d:%d</string>
+    <string name="title_temperature">%d%s</string>
+</resources>
