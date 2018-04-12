@@ -14,6 +14,7 @@ import java.net.URL;
 public class OpenWeatherMapRequester {
     private static final String TAG = OpenWeatherMapRequester.class.getSimpleName();
     private static final int MAX_ATTEMPTS_NUMBER = 10;
+    private static final int BUFFER_SIZE = 1024;
 
     private static final String OPEN_WEATHER_MAP_API =
             "http://api.openweathermap.org/data/2.5/forecast?q=%s,%s";
@@ -33,7 +34,7 @@ public class OpenWeatherMapRequester {
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(connection.getInputStream()));
 
-                StringBuffer json = new StringBuffer(1024);
+                StringBuffer json = new StringBuffer(BUFFER_SIZE);
                 String tmp = "";
                 while ((tmp = reader.readLine()) != null)
                     json.append(tmp).append("\n");

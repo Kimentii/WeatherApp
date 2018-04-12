@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -73,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
                     refreshWeatherForecast(handler);
                 } else {
                     networkStatusTextView.setVisibility(View.VISIBLE);
+                    networkStatusTextView.setText(R.string.message_offline);
                     Log.d(TAG, "Status: offline");
                 }
             }
@@ -109,10 +109,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "onRequestPermissionsResult: refreshing data");
                     Handler handler = new Handler();
                     refreshWeatherForecast(handler);
-                } else {
-
                 }
-                return;
             }
         }
     }
@@ -151,14 +148,20 @@ public class MainActivity extends AppCompatActivity {
                                 addDailyWeatherForecastUi(weatherGuess);
                             }
                             stopFabRotateAnimation(refreshFloatingActionButton);
-                            Snackbar.make(linearLayout, "Done", Snackbar.LENGTH_LONG)
-                                    .setAction("Action", null).show();
+                            /*Snackbar.make(linearLayout, "Done", Snackbar.LENGTH_LONG)
+                                    .setAction("Action", null).show();*/
                         }
                     });
                 } else {
                     Log.d(TAG, "Fail in loading data.");
-                    stopFabRotateAnimation(refreshFloatingActionButton);
-
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            stopFabRotateAnimation(refreshFloatingActionButton);
+                            networkStatusTextView.setVisibility(View.VISIBLE);
+                            networkStatusTextView.setText(R.string.message_cant_load_data);
+                        }
+                    });
                 }
                 // Log.d(TAG, jsonObject.toString());
             }
@@ -233,9 +236,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean isOnline() {
-        ConnectivityManager cm =
+        ConnectivityManager connectivityManager =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (connectivityManager == null) return false;
+        NetworkInfo netInfo = connectivityManager.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
@@ -248,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d(TAG, "Has location permission.");
             LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (locationManager == null) return null;
             List<String> providers = locationManager.getProviders(true);
             for (String provider : providers) {
                 locationManager.requestLocationUpdates(provider, 0, 0.0f, new LocationListener() {
