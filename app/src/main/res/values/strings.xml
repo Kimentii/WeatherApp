@@ -12,4 +12,7 @@
     <string name="key_saved_latitude">latitude</string>
     <string name="key_saved_longitude">longitude</string>
     <string name="key_saved_location_provider">provider</string>
+    <string name="title_current_weather">%s %d%s</string>
+    <string name="title_time">%d:%d</string>
+    <string name="title_temperature">%d%s</string>
 </resources>

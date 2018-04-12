@@ -180,9 +180,10 @@ public class MainActivity extends AppCompatActivity {
         countryTextView.setText(getCountryName(location));
         cityTextView.setText(getCity(location));
         try {
-            currentWeatherTextView.setText(weatherGuess.getWeather().getMain() + " "
-                    + (int) weatherGuess.getMain().getTempInCelsius()
-                    + getResources().getString(R.string.symbol_degree_celsius));
+            currentWeatherTextView.setText(String.format(getString(R.string.title_current_weather),
+                    weatherGuess.getWeather().getMain(),
+                    (int) weatherGuess.getMain().getTempInCelsius(),
+                    getResources().getString(R.string.symbol_degree_celsius)));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -200,12 +201,14 @@ public class MainActivity extends AppCompatActivity {
         dayWeatherIconImageView.setImageDrawable(getIconFromWeatherDescription(weatherGuess.getWeather().getId()));
         dayOfWeekTextView.setText(weatherGuess.getDateAsCalendar().getDisplayName(Calendar.DAY_OF_WEEK,
                 Calendar.SHORT, Locale.getDefault()));
-        timeTextView.setText(weatherGuess.getDateAsCalendar().get(Calendar.HOUR_OF_DAY)
-                + ":" + weatherGuess.getDateAsCalendar().get(Calendar.MINUTE));
+        timeTextView.setText(String.format(getString(R.string.title_time),
+                weatherGuess.getDateAsCalendar().get(Calendar.HOUR_OF_DAY),
+                weatherGuess.getDateAsCalendar().get(Calendar.MINUTE)));
         weatherTextView.setText(weatherGuess.getWeather().getMain());
         try {
-            temperatureTextView.setText((int) weatherGuess.getMain().getTempInCelsius() +
-                    getResources().getString(R.string.symbol_degree_celsius));
+            temperatureTextView.setText(String.format(getString(R.string.title_temperature),
+                    (int) weatherGuess.getMain().getTempInCelsius(),
+                    getResources().getString(R.string.symbol_degree_celsius)));
         } catch (Exception e) {
             e.printStackTrace();
         }
