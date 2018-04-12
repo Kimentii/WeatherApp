@@ -6,6 +6,8 @@
     <string name="title_abbreviated_monday">mo</string>
     <string name="symbol_degree_celsius">℃</string>
     <string name="message_offline">offline</string>
+    <string name="message_no_loaded_data">No loaded data</string>
+    <string name="message_cant_load_data">Can\'t load data</string>
     <string name="key_saved_weather_forecast">weather_forecast</string>
     <string name="key_saved_latitude">latitude</string>
     <string name="key_saved_longitude">longitude</string>

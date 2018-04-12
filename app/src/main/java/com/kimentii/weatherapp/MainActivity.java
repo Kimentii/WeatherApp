@@ -86,15 +86,15 @@ public class MainActivity extends AppCompatActivity {
 
         if (location != null && weatherForecast != null) {
             updateCurrentWeatherUi(location, weatherForecast.getList().get(0));
-        }
-        if (weatherForecast != null) {
             LinearLayout linearLayout = findViewById(R.id.ll_week_forecast);
             linearLayout.removeAllViews();
             for (WeatherGuess weatherGuess : weatherForecast.getList()) {
                 addDailyWeatherForecastUi(weatherGuess);
             }
+        } else {
+            TextView messageTextView = findViewById(R.id.tv_message_no_data);
+            messageTextView.setVisibility(View.VISIBLE);
         }
-
     }
 
     @Override
@@ -133,50 +133,42 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 JSONObject jsonObject = OpenWeatherMapRequester.requestWeather(getApplicationContext(),
                         city, countryCode);
-                final WeatherForecast weatherForecast = new Gson().fromJson(jsonObject.toString(), WeatherForecast.class);
-                SharedPreferencesProvider.putWeatherForecast(MainActivity.this, weatherForecast);
-                /*for (WeatherGuess weatherGuess : weatherForecast.getList()) {
-                    Log.d(TAG, "WeatherGuess: " + "date: " + weatherGuess.getDateInSeconds()
-                            + " Temp: " + weatherGuess.getMain().getTempInCelsius());
-                    Log.d(TAG, "Weather date: " + weatherGuess.getDateAsCalendar().get(Calendar.DAY_OF_WEEK)
-                            + " time: " + weatherGuess.getDateAsCalendar().get(Calendar.HOUR_OF_DAY)
-                            + ":" + weatherGuess.getDateAsCalendar().get(Calendar.MINUTE)
-                            + " forecast: " + weatherGuess.getWeather().getMain());
+                if (jsonObject != null) {
+                    final WeatherForecast weatherForecast = new Gson().fromJson(jsonObject.toString(), WeatherForecast.class);
+                    SharedPreferencesProvider.putWeatherForecast(MainActivity.this, weatherForecast);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateCurrentWeatherUi(location, weatherForecast.getList().get(0));
+                        }
+                    });
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            LinearLayout linearLayout = findViewById(R.id.ll_week_forecast);
+                            linearLayout.removeAllViews();
+                            for (WeatherGuess weatherGuess : weatherForecast.getList()) {
+                                addDailyWeatherForecastUi(weatherGuess);
+                            }
+                            stopFabRotateAnimation(refreshFloatingActionButton);
+                            Snackbar.make(linearLayout, "Done", Snackbar.LENGTH_LONG)
+                                    .setAction("Action", null).show();
+                        }
+                    });
+                } else {
+                    Log.d(TAG, "Fail in loading data.");
+                    stopFabRotateAnimation(refreshFloatingActionButton);
 
-                }*/
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateCurrentWeatherUi(location, weatherForecast.getList().get(0));
-                    }
-                });
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        LinearLayout linearLayout = findViewById(R.id.ll_week_forecast);
-                        linearLayout.removeAllViews();
-                        for (WeatherGuess weatherGuess : weatherForecast.getList()) {
-                            addDailyWeatherForecastUi(weatherGuess);
-                        }
-                        if (refreshFloatingActionButton != null) {
-                            refreshFloatingActionButton.setClickable(true);
-                        }
-                        //stopFabRotateAnimation(refreshFloatingActionButton);
-                        Snackbar.make(linearLayout, "Done", Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-                    }
-                });
+                }
                 // Log.d(TAG, jsonObject.toString());
             }
         });
-        if (refreshFloatingActionButton != null) {
-            refreshFloatingActionButton.setClickable(false);
-        }
-        //startFabRotateAnimation(refreshFloatingActionButton);
+        startFabRotateAnimation(refreshFloatingActionButton);
         thread.start();
     }
 
     private void updateCurrentWeatherUi(Location location, WeatherGuess weatherGuess) {
+        findViewById(R.id.tv_message_no_data).setVisibility(View.INVISIBLE);
         final ImageView iconImageView = findViewById(R.id.iv_current_weather_icon);
         final TextView countryTextView = findViewById(R.id.tv_current_weather_country);
         final TextView cityTextView = findViewById(R.id.tv_current_weather_city);
@@ -297,13 +289,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void startFabRotateAnimation(FloatingActionButton floatingActionButton) {
         floatingActionButton.setClickable(false);
-        Animation dataLoadingAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.loading_data);
-        dataLoadingAnimation.setRepeatCount(Animation.INFINITE);
-        floatingActionButton.startAnimation(dataLoadingAnimation);
+        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.loading_data);
+        floatingActionButton.startAnimation(animation);
     }
 
     private void stopFabRotateAnimation(FloatingActionButton floatingActionButton) {
-        floatingActionButton.getAnimation().setRepeatCount(0);
+        floatingActionButton.clearAnimation();
         floatingActionButton.setClickable(true);
     }
 
