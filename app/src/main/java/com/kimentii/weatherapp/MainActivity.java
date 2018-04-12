@@ -148,8 +148,6 @@ public class MainActivity extends AppCompatActivity {
                                 addDailyWeatherForecastUi(weatherGuess);
                             }
                             stopFabRotateAnimation(refreshFloatingActionButton);
-                            /*Snackbar.make(linearLayout, "Done", Snackbar.LENGTH_LONG)
-                                    .setAction("Action", null).show();*/
                         }
                     });
                 } else {
@@ -163,7 +161,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                 }
-                // Log.d(TAG, jsonObject.toString());
             }
         });
         startFabRotateAnimation(refreshFloatingActionButton);
@@ -202,11 +199,8 @@ public class MainActivity extends AppCompatActivity {
         dayOfWeekTextView.setText(weatherGuess.getDateAsCalendar().getDisplayName(Calendar.DAY_OF_WEEK,
                 Calendar.SHORT, Locale.getDefault()));
         SimpleDateFormat simpleDateFormat;
-        if (Locale.getDefault().equals(Locale.ENGLISH)) {
-            simpleDateFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
-        } else {
-            simpleDateFormat = new SimpleDateFormat("h:mm", Locale.getDefault());
-        }
+        if (BuildConfig.DEBUG) Log.d(TAG, "Locale: " + Locale.getDefault().getCountry());
+        simpleDateFormat = new SimpleDateFormat("h:mm", Locale.getDefault());
 
         timeTextView.setText(simpleDateFormat.format(weatherGuess.getDateAsCalendar().getTime()));
         weatherTextView.setText(weatherGuess.getWeather().getMain(getApplicationContext()));
