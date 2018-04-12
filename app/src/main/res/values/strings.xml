@@ -9,6 +9,5 @@
     <string name="key_saved_longitude" translatable="false">longitude</string>
     <string name="key_saved_location_provider" translatable="false">provider</string>
     <string name="title_current_weather">%s %d%s</string>
-    <string name="title_time">%d:%d</string>
     <string name="title_temperature">%d%s</string>
 </resources>

@@ -30,7 +30,7 @@ public class OpenWeatherMapRequester {
                         context.getString(R.string.open_weather_maps_app_id));
 
                 int status = connection.getResponseCode();
-                Log.d(TAG, "Connection status: " + status);
+                if (BuildConfig.DEBUG) Log.d(TAG, "Connection status: " + status);
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(connection.getInputStream()));
 
@@ -40,18 +40,18 @@ public class OpenWeatherMapRequester {
                     json.append(tmp).append("\n");
                 reader.close();
 
-                Log.d(TAG, "json: " + json);
+                if (BuildConfig.DEBUG) Log.d(TAG, "json: " + json);
 
                 JSONObject data = new JSONObject(json.toString());
 
                 if (data.getInt("cod") != 200) {
-                    Log.d(TAG, "!!! cod is NULL !!!");
+                    if (BuildConfig.DEBUG) Log.d(TAG, "!!! response code isn't 200 !!!");
                     return null;
                 }
                 connection.disconnect();
                 return data;
             } catch (FileNotFoundException e) {
-                Log.d(TAG, "RequestWeather attempt: " + i);
+                if (BuildConfig.DEBUG) Log.d(TAG, "RequestWeather attempt: " + i);
                 e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();

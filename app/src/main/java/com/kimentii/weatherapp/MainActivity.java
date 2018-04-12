@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     networkStatusTextView.setVisibility(View.VISIBLE);
                     networkStatusTextView.setText(R.string.message_offline);
-                    Log.d(TAG, "Status: offline");
+                    if (BuildConfig.DEBUG) Log.d(TAG, "Status: offline");
                 }
             }
         });
@@ -100,15 +100,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Log.d(TAG, "onRequestPermissionsResult");
-        Log.d(TAG, "Num of grandResults: " + grantResults.length);
+        if (BuildConfig.DEBUG) Log.d(TAG, "onRequestPermissionsResult");
+        if (BuildConfig.DEBUG) Log.d(TAG, "Num of grandResults: " + grantResults.length);
         switch (requestCode) {
             case PERMISSIONS_REQUEST_LOCATION: {
                 if (grantResults.length == 2
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                     // TODO: this code doesn't work
-                    Log.d(TAG, "onRequestPermissionsResult: refreshing data");
+                    if (BuildConfig.DEBUG)
+                        Log.d(TAG, "onRequestPermissionsResult: refreshing data");
                     Handler handler = new Handler();
                     refreshWeatherForecast(handler);
                 }
@@ -119,14 +120,12 @@ public class MainActivity extends AppCompatActivity {
     private void refreshWeatherForecast(final Handler handler) {
         final Location location = getLocation();
         if (location == null) {
-            Log.d(TAG, "!!! NO LOCATION");
+            if (BuildConfig.DEBUG) Log.d(TAG, "!!! no location !!!");
             return;
         }
         SharedPreferencesProvider.putLocation(MainActivity.this, location);
         final String city = getCity(location, Locale.ENGLISH);
         final String countryCode = getCountryCode(location, Locale.ENGLISH);
-        Log.d(TAG, "City: " + city);
-        Log.d(TAG, "countryCode: " + countryCode);
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -155,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                 } else {
-                    Log.d(TAG, "Fail in loading data.");
+                    if (BuildConfig.DEBUG) Log.d(TAG, "Fail in loading data.");
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -203,11 +202,14 @@ public class MainActivity extends AppCompatActivity {
         dayWeatherIconImageView.setImageDrawable(getIconFromWeatherDescription(weatherGuess.getWeather().getId()));
         dayOfWeekTextView.setText(weatherGuess.getDateAsCalendar().getDisplayName(Calendar.DAY_OF_WEEK,
                 Calendar.SHORT, Locale.getDefault()));
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
-        timeTextView.setText(simpleDateFormat.format(weatherGuess.getDateAsCalendar()));
-        /*timeTextView.setText(String.format(getString(R.string.title_time),
-                weatherGuess.getDateAsCalendar().get(Calendar.HOUR_OF_DAY),
-                weatherGuess.getDateAsCalendar().get(Calendar.MINUTE)));*/
+        SimpleDateFormat simpleDateFormat;
+        if (Locale.getDefault() == Locale.ENGLISH) {
+            simpleDateFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+        } else {
+            simpleDateFormat = new SimpleDateFormat("h:mm", Locale.getDefault());
+        }
+
+        timeTextView.setText(simpleDateFormat.format(weatherGuess.getDateAsCalendar().getTime()));
         weatherTextView.setText(weatherGuess.getWeather().getMain());
         try {
             temperatureTextView.setText(String.format(getString(R.string.title_temperature),
@@ -220,7 +222,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Drawable getIconFromWeatherDescription(int id) {
-        Log.d(TAG, "Weather id: " + id);
         Resources resources = getResources();
         if (id >= 200 && id < 300) {
             return resources.getDrawable(R.drawable.art_thunderstorm);
@@ -257,34 +258,30 @@ public class MainActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
             return null;
         } else {
-            Log.d(TAG, "Has location permission.");
+            if (BuildConfig.DEBUG) Log.d(TAG, "Has location permission.");
             LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             if (locationManager == null) return null;
             List<String> providers = locationManager.getProviders(true);
             for (String provider : providers) {
-                locationManager.requestLocationUpdates(provider, 0, 0.0f, new LocationListener() {
+                locationManager.requestSingleUpdate(provider, new LocationListener() {
                     @Override
                     public void onLocationChanged(Location location) {
-                        // Log.d(TAG, "onLocationChanged");
                     }
 
                     @Override
                     public void onStatusChanged(String provider, int status, Bundle extras) {
-                        //  Log.d(TAG, "onStatusChanged");
                     }
 
                     @Override
                     public void onProviderEnabled(String provider) {
-                        //   Log.d(TAG, "onProviderEnabled");
                     }
 
                     @Override
                     public void onProviderDisabled(String provider) {
-                        // Log.d(TAG, "onProviderDisabled");
                     }
-                });
+                }, this.getMainLooper());
             }
-            Log.d(TAG, "Num of providers: " + providers.size());
+            if (BuildConfig.DEBUG) Log.d(TAG, "Num of providers: " + providers.size());
             Location bestLocation = null;
             for (String provider : providers) {
                 Location l = locationManager.getLastKnownLocation(provider);
