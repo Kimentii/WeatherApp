@@ -4,4 +4,14 @@
     <string name="message_offline">офлайн</string>
     <string name="message_no_loaded_data">Нет данных</string>
     <string name="message_cant_load_data">Не получилось загрузить данные</string>
+
+    <string name="main_group_thunderstorm">Гроза</string>
+    <string name="main_group_drizzle">Изморось</string>
+    <string name="main_group_rain">Дождь</string>
+    <string name="main_group_snow">Снег</string>
+    <string name="main_group_atmosphere">Туман</string>
+    <string name="main_group_clear">Ясно</string>
+    <string name="main_group_clouds">Облачно</string>
+    <string name="main_group_extreme">Экстрим</string>
+    <string name="main_group_additional">Дополнительно</string>
 </resources>

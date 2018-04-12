@@ -10,4 +10,14 @@
     <string name="key_saved_location_provider" translatable="false">provider</string>
     <string name="title_current_weather">%s %d%s</string>
     <string name="title_temperature">%d%s</string>
+
+    <string name="main_group_thunderstorm">Thunderstorm</string>
+    <string name="main_group_drizzle">Drizzle</string>
+    <string name="main_group_rain">Rain</string>
+    <string name="main_group_snow">Snow</string>
+    <string name="main_group_atmosphere">Atmosphere</string>
+    <string name="main_group_clear">Clear</string>
+    <string name="main_group_clouds">Clouds</string>
+    <string name="main_group_extreme">Extreme</string>
+    <string name="main_group_additional">Additional</string>
 </resources>

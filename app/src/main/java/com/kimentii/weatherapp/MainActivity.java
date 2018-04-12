@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
         cityTextView.setText(getCity(location, Locale.getDefault()));
         try {
             currentWeatherTextView.setText(String.format(getString(R.string.title_current_weather),
-                    weatherGuess.getWeather().getMain(),
+                    weatherGuess.getWeather().getMain(getApplicationContext()),
                     (int) weatherGuess.getMain().getTempInCelsius(),
                     getResources().getString(R.string.symbol_degree_celsius)));
         } catch (Exception e) {
@@ -209,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         timeTextView.setText(simpleDateFormat.format(weatherGuess.getDateAsCalendar().getTime()));
-        weatherTextView.setText(weatherGuess.getWeather().getMain());
+        weatherTextView.setText(weatherGuess.getWeather().getMain(getApplicationContext()));
         try {
             temperatureTextView.setText(String.format(getString(R.string.title_temperature),
                     (int) weatherGuess.getMain().getTempInCelsius(),
