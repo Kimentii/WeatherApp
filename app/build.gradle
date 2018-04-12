@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'my_key'
+            keyPassword '123456789'
+            storeFile file('E:/Projects/AndroidStudio/key_aliases/weatherapp.jks')
+            storePassword '123456789'
+        }
+    }
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.kimentii.weatherapp"
@@ -15,7 +23,11 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
+    }
+    lintOptions {
+        abortOnError false
     }
 }
 
