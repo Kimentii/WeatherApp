@@ -7,5 +7,7 @@
     <string name="symbol_degree_celsius">℃</string>
     <string name="message_offline">offline</string>
     <string name="key_saved_weather_forecast">weather_forecast</string>
-    <string name="key_saved_location">location</string>
+    <string name="key_saved_latitude">latitude</string>
+    <string name="key_saved_longitude">longitude</string>
+    <string name="key_saved_location_provider">provider</string>
 </resources>

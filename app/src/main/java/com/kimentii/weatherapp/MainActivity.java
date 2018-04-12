@@ -77,35 +77,24 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final WeatherForecast weatherForecast = SharedPreferencesProvider
-                        .getWeatherForecast(MainActivity.this);
-                final Location location = SharedPreferencesProvider
-                        .getLocation(MainActivity.this);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (location != null && weatherForecast != null) {
-                            updateCurrentWeatherUi(location, weatherForecast.getList().get(0));
-                        }
-                        if (weatherForecast != null) {
-                            LinearLayout linearLayout = findViewById(R.id.ll_week_forecast);
-                            linearLayout.removeAllViews();
-                            for (WeatherGuess weatherGuess : weatherForecast.getList()) {
-                                addDailyWeatherForecastUi(weatherGuess);
-                            }
-                        }
-                        if (refreshFloatingActionButton != null) {
-                            refreshFloatingActionButton.setClickable(true);
-                        }
-                    }
-                });
+
+        final WeatherForecast weatherForecast = SharedPreferencesProvider
+                .getWeatherForecast(MainActivity.this);
+
+        final Location location = SharedPreferencesProvider
+                .getLocation(MainActivity.this);
+
+        if (location != null && weatherForecast != null) {
+            updateCurrentWeatherUi(location, weatherForecast.getList().get(0));
+        }
+        if (weatherForecast != null) {
+            LinearLayout linearLayout = findViewById(R.id.ll_week_forecast);
+            linearLayout.removeAllViews();
+            for (WeatherGuess weatherGuess : weatherForecast.getList()) {
+                addDailyWeatherForecastUi(weatherGuess);
             }
-        });
-        refreshFloatingActionButton.setClickable(false);
-        thread.start();
+        }
+
     }
 
     @Override
@@ -134,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "!!! NO LOCATION");
             return;
         }
-        SharedPreferencesProvider.putLocation(this, location);
+        SharedPreferencesProvider.putLocation(MainActivity.this, location);
         final String city = getCity(location);
         final String countryCode = getCountryCode(location);
         Log.d(TAG, "City: " + city);
